@@ -1,20 +1,49 @@
-// Import dependencies
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const mongoose = require('mongoose');
+
+const DB_URI = "mongodb+srv://richie:Y2grO4Q0k4IlGi9U@richdriverproject.l5l7dwo.mongodb.net/?appName=richDriverProject"
 
 const app = express();
-const port = 5000;
 
-// Middleware
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.use(express.json());
+app.use(express.static('uploads'));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+mongoose.connect(DB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Define the Driver schema and model
+const driverSchema = new mongoose.Schema({
+  fullName: { type: String, },
+  email: { type: String, },
+  phone: { type: String, },
+  truckType: { type: String, },
+  filePath: { type: String, },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const Driver = mongoose.model('Driver', driverSchema);
 
 app.get('/', async (req, res) => {
   res.status(200).json({
@@ -26,47 +55,38 @@ app.get('/', async (req, res) => {
 // Route to fetch data
 app.get('/api/drivers', async (req, res) => {
   try {
-    const response = await axios.get('https://randomuser.me/api/?results=10');
-    res.json(response.data.results);
+    const drivers = await Driver.find(); // Fetch all drivers from DB
+console.log('taking server data');
+    console.log(drivers);
+
+    res.json(drivers);
   } catch (error) {
-    res.status(500).json({ status: 'error', message: 'something unexpected happened' });
+    res.status(500).json({ status: 'error', message: 'Something unexpected happened' });
   }
 });
-
-app.use(express.static('uploads')); // Serve static files from the "uploads" directory
-
-// Set up multer for file storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // File will be uploaded to the "uploads" folder
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Use timestamp to avoid file name conflicts
-  }
-});
-
-const upload = multer({ storage: storage });
 
 // Route to handle form submission
-app.post('/api/submit', upload.single('fileUpload'), (req, res) => {
+app.post('/api/submit', upload.single('fileUpload'), async (req, res) => {
   const { fullName, email, phone, truckType } = req.body;
-  const file = req.file; // The uploaded file will be available in req.file
+  const file = req.file;
 
-  // Respond back to the frontend
-  res.json({
-    message: 'Driver registered successfully!',
-    data: {
+  try {
+    const newDriver = new Driver({
       fullName,
       email,
       phone,
       truckType,
-      filePath: file.path // You can send the file path if needed for the frontend to display or download the file
-    }
-  });
+      filePath: file.path,
+    });
+
+    await newDriver.save();
+    res.json({
+      message: 'Driver registered successfully!',
+      data: newDriver,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to register driver', error });
+  }
 });
 
-// Start the server
-// app.listen(port, () => {
- // console.log(`Server running succesfull`);
-// });
 module.exports = (req, res) =>  (app(req, res));
