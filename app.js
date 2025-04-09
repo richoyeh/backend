@@ -50,12 +50,15 @@ const driverSchema = new mongoose.Schema({
 const Driver = mongoose.model('Driver', driverSchema);
 
 app.get('/', async (req, res) => {
-  try {
-    fs.mkdirSync('uploads', { recursive: true });
-    console.log('Folder created successfully');
-  } catch (err) {
-    console.error('Error creating folder:', err);
-  }
+  const uploadDir = path.join(__dirname, 'uploads');
+
+try {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Folder created successfully');
+} catch (err) {
+  console.error('Error creating folder:', err);
+}
+
   
   res.status(200).json({
     status: "success",
