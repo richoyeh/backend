@@ -57,13 +57,15 @@ app.get('/', async (req, res) => {
 
 // Route to fetch data
 app.get('/api/drivers', async (req, res) => {
+  console.log('taking server data');
   try {
     const drivers = await Driver.find(); // Fetch all drivers from DB
-console.log('taking server data');
+
     console.log(drivers);
 
     res.json(drivers);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ status: 'error', message: 'Something unexpected happened' });
   }
 });
@@ -88,6 +90,7 @@ app.post('/api/submit', upload.single('fileUpload'), async (req, res) => {
       data: newDriver,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Failed to register driver', error });
   }
 });
