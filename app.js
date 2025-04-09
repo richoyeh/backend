@@ -3,6 +3,7 @@ const axios = require('axios');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 
 const DB_URI = "mongodb+srv://richie:Y2grO4Q0k4IlGi9U@richdriverproject.l5l7dwo.mongodb.net/?appName=richDriverProject"
@@ -49,6 +50,13 @@ const driverSchema = new mongoose.Schema({
 const Driver = mongoose.model('Driver', driverSchema);
 
 app.get('/', async (req, res) => {
+  try {
+    fs.mkdirSync('uploads', { recursive: true });
+    console.log('Folder created successfully');
+  } catch (err) {
+    console.error('Error creating folder:', err);
+  }
+  
   res.status(200).json({
     status: "success",
     message: "server is active"
@@ -57,15 +65,11 @@ app.get('/', async (req, res) => {
 
 // Route to fetch data
 app.get('/api/drivers', async (req, res) => {
-  console.log('taking server data');
   try {
     const drivers = await Driver.find(); // Fetch all drivers from DB
-
-    console.log(drivers);
-
     res.json(drivers);
   } catch (error) {
-    console.log(error);
+    
     res.status(500).json({ status: 'error', message: 'Something unexpected happened' });
   }
 });
@@ -83,7 +87,7 @@ app.post('/api/submit', upload.single('fileUpload'), async (req, res) => {
       truckType,
       filePath: file.path,
     });
-
+    console.log(newDriver);
     await newDriver.save();
     res.json({
       message: 'Driver registered successfully!',
