@@ -59,6 +59,6 @@ app.post('/api/submit', upload.single('fileUpload'), (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server running succesfull`);
-});
+// app.listen(port, () => {
+ // console.log(`Server running succesfull`);
+// });
