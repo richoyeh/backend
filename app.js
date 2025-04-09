@@ -16,6 +16,13 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.get('/', async (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "server is active"
+  })
+})
+
 // Route to fetch data
 app.get('/api/drivers', async (req, res) => {
   try {
@@ -62,4 +69,4 @@ app.post('/api/submit', upload.single('fileUpload'), (req, res) => {
 // app.listen(port, () => {
  // console.log(`Server running succesfull`);
 // });
-module.exports = (req, res) =>  app(req, res);
+module.exports = (req, res) =>  (app(req, res));
