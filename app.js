@@ -29,13 +29,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-mongoose.connect(DB_URI, 
- /* {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}
-*/
-);
+mongoose.connect(DB_URI);
 
 // Define the Driver schema and model
 const driverSchema = new mongoose.Schema({
@@ -50,16 +44,6 @@ const driverSchema = new mongoose.Schema({
 const Driver = mongoose.model('Driver', driverSchema);
 
 app.get('/', async (req, res) => {
-  const uploadDir = path.join(__dirname, 'uploads');
-
-try {
-  fs.mkdirSync(uploadDir, { recursive: true });
-  console.log('Folder created successfully');
-} catch (err) {
-  console.error('Error creating folder:', err);
-}
-
-  
   res.status(200).json({
     status: "success",
     message: "server is active"
