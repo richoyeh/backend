@@ -62,3 +62,4 @@ app.post('/api/submit', upload.single('fileUpload'), (req, res) => {
 // app.listen(port, () => {
  // console.log(`Server running succesfull`);
 // });
+module.exports = (req, res) =>  app(req, res);
