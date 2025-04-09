@@ -28,10 +28,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-mongoose.connect(DB_URI, {
+mongoose.connect(DB_URI, 
+ /* {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-});
+}
+*/
+);
 
 // Define the Driver schema and model
 const driverSchema = new mongoose.Schema({
